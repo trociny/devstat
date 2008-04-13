@@ -4,6 +4,8 @@
 
 Devstat info displayed looks like this:
 
+{{{
+
 kopusha:~% devstat 
 ad0:
         29184 bytes read
@@ -49,3 +51,5 @@ ad2:
         supported statisctics measurments flags: 0
         device type: 0
         devstat list insert priority: 4095
+
+}}}
