@@ -1,0 +1,51 @@
+#summary Typical output
+
+= Example =
+
+Devstat info displayed looks like this:
+
+kopusha:~% devstat 
+ad0:
+        29184 bytes read
+        0 bytes written
+        0 bytes freed
+        39 reads
+        0 writes
+        0 frees
+        0 other
+        duration:
+                0 8271858279415856098/2^64 sec reads
+                0 0/2^64 sec writes
+                0 0/2^64 sec frees
+        0 8271858279415856098/2^64 sec busy time
+        1 17316077238080354385/2^64 sec creation time
+        512 block size
+        tags sent:
+                39 simple
+                0 ordered
+                0 head of queue
+        supported statisctics measurments flags: 0
+        device type: 0
+        devstat list insert priority: 4095
+ad2:
+        45231104 bytes read
+        25548800 bytes written
+        0 bytes freed
+        2687 reads
+        1857 writes
+        0 frees
+        0 other
+        duration:
+                25 4629847552146137086/2^64 sec reads
+                23 7494645774336775744/2^64 sec writes
+                0 0/2^64 sec frees
+        22 12949347393270322518/2^64 sec busy time
+        2 456161826735997133/2^64 sec creation time
+        512 block size
+        tags sent:
+                4544 simple
+                0 ordered
+                0 head of queue
+        supported statisctics measurments flags: 0
+        device type: 0
+        devstat list insert priority: 4095
