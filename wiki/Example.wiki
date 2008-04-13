@@ -1,7 +1,5 @@
 #summary Typical output
 
-= Example =
-
 Devstat info displayed looks like this:
 
 {{{
