@@ -23,55 +23,90 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: devstat.c,v 1.1.1.1 2008/04/12 17:16:55 mikolaj Exp $
+ * $Id: devstat.c,v 1.2 2008/06/03 20:35:31 mikolaj Exp $
  *
  */
 
 #include <sys/types.h>
-#include <sys/sysctl.h>
+#include <sys/param.h>
+#include <sys/errno.h>
+#include <sys/resource.h>
+
+#include <err.h>
+#include <ctype.h>
+#include <fcntl.h>
+#include <kvm.h>
+#include <nlist.h>
 #include <unistd.h>
 #include <paths.h>
-
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include <sys/resource.h>
 #include <devstat.h>
+#include <limits.h>
 
 #define MAXNAMELEN	256
 #define _CNT		(unsigned long long)
 
-int main (int argc, char* argv[]) {
+static void
+usage (char* progname) {
+	fprintf(stderr, "usage: %s [-M core] [-N system] [devname]\n", progname);
+}
+
+int
+main (int argc, char* argv[]) {
 	struct statinfo	stats;
 	struct devinfo	dinfo;
-	int		i, found;
-	char		*check_dev = NULL;
+	int		c, i, found;
+	char		*memf = NULL, *nlistf = NULL, *check_dev = NULL;
+	kvm_t		*kd = NULL;
+	char		errbuf[_POSIX2_LINE_MAX];
 
-	if (argc > 1)
-		check_dev = argv[1];
-
-	if ( devstat_checkversion(NULL) == -1) {
-		fprintf(stderr, "userland and kernel devstat version mismatch\n");
-		return 1;
+        while ((c = getopt(argc, argv, "M:N:")) != -1) {
+		switch(c) {
+		case 'N':
+			nlistf = optarg;
+			break;
+		case 'M':
+			memf = optarg;
+			break;
+		default:
+			usage(argv[0]);
+			exit(1);
+		}
 	}
+
+	argc -= optind;
+	argv += optind;
+	
+	if (argc > 0)
+		check_dev = argv[0];
+
+	if (nlistf != NULL || memf != NULL) {
+		kd = kvm_openfiles(nlistf, memf, NULL, O_RDONLY, errbuf);
+
+		if (kd == NULL)
+			errx(1, "kvm_openfiles: %s", errbuf);
+
+	}
+	
+	if (devstat_checkversion(kd) == -1)
+		errx(1, "userland and kernel devstat version mismatch");
 
 	memset(&stats, 0, sizeof(stats));
 	memset(&dinfo, 0, sizeof(dinfo));
 	stats.dinfo = &dinfo;
 
-	if (devstat_getdevs(NULL, &stats) == -1) {
-		fprintf(stderr, "devstat_getdevs failed\n");
-		return 1;
-	}
+	if (devstat_getdevs(kd, &stats) == -1)
+		errx(1, "devstat_getdevs failed");
 
-	for(i = 0; i < (stats.dinfo)->numdevs; i++) {
+	for(found = 0, i = 0; i < (stats.dinfo)->numdevs; i++) {
 		char	dev_name[MAXNAMELEN];
 		struct devstat	dev = (stats.dinfo)->devices[i];
 		snprintf(dev_name, MAXNAMELEN-1, "%s%d",
 			 dev.device_name, dev.unit_number);
 		if ((check_dev != NULL) && (strcmp(check_dev, dev_name) != 0))
 			continue;
-		found = 1;
 
 		printf("%s:\n", dev_name);
 		printf("\t%llu bytes read\n",    _CNT dev.bytes[DEVSTAT_READ]);
@@ -100,17 +135,18 @@ int main (int argc, char* argv[]) {
 		printf("\tdevstat list insert priority: %llu\n", _CNT dev.priority);
 
 		if (check_dev != NULL) {
-			free((stats.dinfo)->mem_ptr);
-			return 0;
+			found = 1;
+			break;
 		}
 	}
 
 	free((stats.dinfo)->mem_ptr);
+
+	if(kd != NULL)
+		kvm_close(kd);
 	
-	if (check_dev != NULL) {
-		fprintf(stderr, "device %s is not registered in devstat\n", check_dev);
-		return 1;
-	}
+	if ((check_dev != NULL) && (found == 0))
+		errx(1, "device %s is not registered in devstat", check_dev);
 
 	return 0;
 }

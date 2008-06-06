@@ -1,7 +1,7 @@
 # Copyright (c) 2008 Mikolaj Golub
 # All rights reserved.
 #
-# $Id: Makefile,v 1.2 2008/04/12 20:50:59 mikolaj Exp $
+# $Id: Makefile,v 1.3 2008/06/03 20:35:31 mikolaj Exp $
 
 PROG=	devstat
 
@@ -19,7 +19,7 @@ CFLAGS +=	${WARNS}
 all:	${PROG}
 
 ${PROG}:	${PROG}.c
-	gcc ${CFLAGS} ${LDADD} ${PROG}.c -o ${PROG}
+	${CC} ${CFLAGS} ${LDADD} ${PROG}.c -o ${PROG}
 
 clean:
 	rm -f ${PROG}
