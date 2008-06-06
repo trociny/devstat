@@ -23,7 +23,7 @@
 .\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 .\" SUCH DAMAGE.
 .\"
-.\" $Id: devstat.8,v 1.1.1.1 2008/04/12 17:16:55 mikolaj Exp $
+.\" $Id: devstat.8,v 1.2 2008/06/03 20:35:31 mikolaj Exp $
 .\"
 .Dd April, 2008
 .Dt devstat 8
@@ -33,7 +33,7 @@
 .Nd display device statistics.
 .Sh SYNOPSIS
 .Nm
-[device]
+[-M core] [-N system] [device]
 .Sh DESCRIPTION
 .Nm
 utility displays device statistics provided by 
@@ -41,6 +41,14 @@ utility displays device statistics provided by
 kernel subsystem. Description of output fields can be found in
 .Xr devstat 9
 manual page.
+.Sh OPTIONS
+.Bl -tag -width flag
+.It Fl N
+Use specified executable image of the kernel instead of the default
+.Dq Pa /boot/kernel/kernel .
+.It Fl M
+Extract statistics from specified core instead of the default
+.Dq Pa /dev/kmem .
 .Sh SEE ALSO
 .Xr devstat 3 ,
 .Xr devstat 9 ,
