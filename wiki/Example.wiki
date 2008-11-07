@@ -1,4 +1,5 @@
 #summary Typical output
+#labels Featured
 
 Devstat info displayed looks like this:
 
