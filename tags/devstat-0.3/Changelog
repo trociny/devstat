@@ -1,0 +1,17 @@
+devstat (0.3)
+
+  * NetBSD support added
+
+-- Mikolaj Golub <to.my.trociny@gmail.com> 2009/07/05
+
+devstat (0.2)
+
+  * option added to extract statistics from core file
+
+-- Mikolaj Golub <to.my.trociny@gmail.com> 2008/05/17
+
+devstat (0.1)
+
+  * initial version
+
+-- Mikolaj Golub <to.my.trociny@gmail.com> 2008/04/12
