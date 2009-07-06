@@ -1,7 +1,7 @@
 #summary Typical output
 #labels Featured
 
-Devstat info displayed looks like this:
+Under FreeBSD devstat info displayed looks like this:
 
 {{{
 
@@ -50,5 +50,57 @@ ad2:
         supported statisctics measurments flags: 0
         device type: 0
         devstat list insert priority: 4095
+
+}}}
+
+Under NetBSD there are less fields:
+
+{{{
+
+$ ./devstat
+xbd0:
+        device type: 0
+        busy counter: 0
+        405659136 bytes read
+        552335872 bytes written
+        21883 reads
+        41602 writes
+        41602 seeks
+        22.901264 sec spent busy
+        attach timestamp: 1.338699 sec
+        unbusy timestamp: 166747.148681 sec
+xbd1:
+        device type: 0
+        busy counter: 0
+        3584 bytes read
+        0 bytes written
+        6 reads
+        0 writes
+        0 seeks
+        0.029997 sec spent busy
+        attach timestamp: 1.338699 sec
+        unbusy timestamp: 1.368696 sec
+md0:
+        device type: 0
+        busy counter: 0
+        0 bytes read
+        0 bytes written
+        0 reads
+        0 writes
+        0 seeks
+        0.000000 sec spent busy
+        attach timestamp: 1.338699 sec
+        unbusy timestamp: 0.000000 sec
+nfs0:
+        device type: 0
+        busy counter: 0
+        34664956 bytes read
+        0 bytes written
+        1059 reads
+        0 writes
+        0 seeks
+        1.719998 sec spent busy
+        attach timestamp: 164803.028681 sec
+        unbusy timestamp: 164885.968681 sec
 
 }}}
