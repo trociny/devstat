@@ -1,5 +1,6 @@
-devstat utility displays disk statistics provided by devstat(9)
-subsystem.
+devstat utility displays disk statistics. Under FreeBSD this
+statistics is provided by devstat(9) subsystem, since the utility
+name. Although NetBSD is supported in some way too...
 
 --
 Mikolaj Golub
