@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: devstat.c,v 1.2 2008/06/03 20:35:31 mikolaj Exp $
+ * $Id: devstat_freebsd.c,v 1.2 2009/07/07 19:15:56 mikolaj Exp $
  *
  */
 
@@ -130,7 +130,7 @@ main (int argc, char* argv[]) {
 		printf("\t\t%llu simple\n",        _CNT dev.tag_types[DEVSTAT_TAG_SIMPLE]);
 		printf("\t\t%llu ordered\n",       _CNT dev.tag_types[DEVSTAT_TAG_ORDERED]);
 		printf("\t\t%llu head of queue\n", _CNT dev.tag_types[DEVSTAT_TAG_HEAD]);
-		printf("\tsupported statisctics measurments flags: %llu\n", _CNT dev.flags);
+		printf("\tsupported statistics measurements flags: %llu\n", _CNT dev.flags);
 		printf("\tdevice type: %llu\n", _CNT dev.device_type);
 		printf("\tdevstat list insert priority: %llu\n", _CNT dev.priority);
 
