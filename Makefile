@@ -1,7 +1,7 @@
 # Copyright (c) 2008 Mikolaj Golub
 # All rights reserved.
 #
-# $Id: Makefile,v 1.4 2009/07/05 17:36:24 mikolaj Exp $
+# $Id$
 
 PROG = devstat
 
