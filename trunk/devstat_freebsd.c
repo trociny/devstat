@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: devstat_freebsd.c,v 1.2 2009/07/07 19:15:56 mikolaj Exp $
+ * $Id$
  *
  */
 

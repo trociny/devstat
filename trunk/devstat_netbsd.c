@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Id: devstat_netbsd.c,v 1.2 2009/07/05 19:46:30 mikolaj Exp $
+ * $Id$
  *
  */
 
