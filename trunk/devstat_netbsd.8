@@ -33,7 +33,7 @@
 .Nd display device statistics.
 .Sh SYNOPSIS
 .Nm
-[-M core] [-N system] [device]
+[-M core] [-N system] [-m] [device]
 .Sh DESCRIPTION
 .Nm
 utility displays device statistics provided by io_sysctl. 
@@ -45,9 +45,12 @@ Description of output fields can be found in
 Use specified executable image of the kernel.
 .It Fl M
 Extract statistics from specified core.
+.It Fl m 
+Machine-friendly (more convenient for parsing) output.
+.El
 .Sh SEE ALSO
 .Xr iostat 8 ,
 .Xr vmstat 1 ,
-.Xr systat 1 ,
+.Xr systat 1 .
 .Sh AUTHOR
 .An Mikolaj Golub
