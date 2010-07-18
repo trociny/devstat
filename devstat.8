@@ -25,7 +25,7 @@
 .\"
 .\" $Id$
 .\"
-.Dd April, 2008
+.Dd July, 2010
 .Dt devstat 8
 .Os devstat
 .Sh NAME
@@ -33,7 +33,7 @@
 .Nd display device statistics.
 .Sh SYNOPSIS
 .Nm
-[-M core] [-N system] [device]
+[-M core] [-N system] [-m] [device]
 .Sh DESCRIPTION
 .Nm
 utility displays device statistics provided by 
@@ -49,6 +49,8 @@ Use specified executable image of the kernel instead of the default
 .It Fl M
 Extract statistics from specified core instead of the default
 .Dq Pa /dev/kmem .
+.It Fl m 
+Machine-friendly (more convenient for parsing) output.
 .El
 .Sh SEE ALSO
 .Xr devstat 3 ,

@@ -46,29 +46,31 @@
 #include <limits.h>
 
 #define MAXNAMELEN	256
-#define _CNT		(unsigned long long)
 
 static void
 usage (char* progname) {
-	fprintf(stderr, "usage: %s [-M core] [-N system] [devname]\n", progname);
+	fprintf(stderr, "usage: %s [-M core] [-N system] [-m] [devname]\n", progname);
 }
 
 int
 main (int argc, char* argv[]) {
 	struct statinfo	stats;
 	struct devinfo	dinfo;
-	int		c, i, found;
+	int		c, i, found, mfriendly = 0;
 	char		*memf = NULL, *nlistf = NULL, *check_dev = NULL;
 	kvm_t		*kd = NULL;
 	char		errbuf[_POSIX2_LINE_MAX];
 
-        while ((c = getopt(argc, argv, "M:N:")) != -1) {
+        while ((c = getopt(argc, argv, "M:N:m")) != -1) {
 		switch(c) {
 		case 'N':
 			nlistf = optarg;
 			break;
 		case 'M':
 			memf = optarg;
+			break;
+		case 'm':
+			mfriendly = 1;
 			break;
 		default:
 			usage(argv[0]);
@@ -108,32 +110,42 @@ main (int argc, char* argv[]) {
 		if ((check_dev != NULL) && (strcmp(check_dev, dev_name) != 0))
 			continue;
 
-		printf("%s:\n", dev_name);
-		printf("\t%llu bytes read\n",    _CNT dev.bytes[DEVSTAT_READ]);
-		printf("\t%llu bytes written\n", _CNT dev.bytes[DEVSTAT_WRITE]);
-		printf("\t%llu bytes freed\n",   _CNT dev.bytes[DEVSTAT_FREE]);
-		printf("\t%llu reads\n",  _CNT dev.operations[DEVSTAT_READ]);
-		printf("\t%llu writes\n", _CNT dev.operations[DEVSTAT_WRITE]);
-		printf("\t%llu frees\n",  _CNT dev.operations[DEVSTAT_FREE]);
-		printf("\t%llu other\n",  _CNT dev.operations[DEVSTAT_NO_DATA]);
-		printf("\tduration:\n");
-		printf("\t\t%llu %llu/2^64 sec reads\n",
-		       _CNT dev.duration[DEVSTAT_READ].sec, _CNT dev.duration[DEVSTAT_READ].frac);
-		printf("\t\t%llu %llu/2^64 sec writes\n",
-		       _CNT dev.duration[DEVSTAT_WRITE].sec, _CNT dev.duration[DEVSTAT_WRITE].frac);
-		printf("\t\t%llu %llu/2^64 sec frees\n",
-		       _CNT dev.duration[DEVSTAT_FREE].sec, _CNT dev.duration[DEVSTAT_FREE].frac);
-		printf("\t%llu %llu/2^64 sec busy time\n", _CNT dev.busy_time.sec, _CNT dev.busy_time.frac);
-		printf("\t%llu %llu/2^64 sec creation time\n", _CNT dev.creation_time.sec, _CNT dev.creation_time.frac);
-		printf("\t%llu block size\n", _CNT dev.block_size);
-		printf("\ttags sent:\n");
-		printf("\t\t%llu simple\n",        _CNT dev.tag_types[DEVSTAT_TAG_SIMPLE]);
-		printf("\t\t%llu ordered\n",       _CNT dev.tag_types[DEVSTAT_TAG_ORDERED]);
-		printf("\t\t%llu head of queue\n", _CNT dev.tag_types[DEVSTAT_TAG_HEAD]);
-		printf("\tsupported statistics measurements flags: %llu\n", _CNT dev.flags);
-		printf("\tdevice type: %llu\n", _CNT dev.device_type);
-		printf("\tdevstat list insert priority: %llu\n", _CNT dev.priority);
+#define CNT	(unsigned long long)
+#define PREF	do {if (mfriendly) printf("%s:", dev_name);} while (0); 
 
+		if (!mfriendly)
+			printf("%s:\n", dev_name);
+		PREF printf("\t%llu bytes read\n",    CNT dev.bytes[DEVSTAT_READ]);
+		PREF printf("\t%llu bytes written\n", CNT dev.bytes[DEVSTAT_WRITE]);
+		PREF printf("\t%llu bytes freed\n",   CNT dev.bytes[DEVSTAT_FREE]);
+		PREF printf("\t%llu reads\n",  CNT dev.operations[DEVSTAT_READ]);
+		PREF printf("\t%llu writes\n", CNT dev.operations[DEVSTAT_WRITE]);
+		PREF printf("\t%llu frees\n",  CNT dev.operations[DEVSTAT_FREE]);
+		PREF printf("\t%llu other\n",  CNT dev.operations[DEVSTAT_NO_DATA]);
+		PREF printf("\tduration:\n");
+		PREF printf("\t\t%llu %llu/2^64 sec reads\n",
+		            CNT dev.duration[DEVSTAT_READ].sec,
+                            CNT dev.duration[DEVSTAT_READ].frac);
+		PREF printf("\t\t%llu %llu/2^64 sec writes\n",
+		            CNT dev.duration[DEVSTAT_WRITE].sec, 
+		            CNT dev.duration[DEVSTAT_WRITE].frac);
+		PREF printf("\t\t%llu %llu/2^64 sec frees\n",
+		            CNT dev.duration[DEVSTAT_FREE].sec, 
+		            CNT dev.duration[DEVSTAT_FREE].frac);
+		PREF printf("\t%llu %llu/2^64 sec busy time\n",
+		            CNT dev.busy_time.sec, CNT dev.busy_time.frac);
+		PREF printf("\t%llu %llu/2^64 sec creation time\n",
+		            CNT dev.creation_time.sec, CNT dev.creation_time.frac);
+		PREF printf("\t%llu block size\n", CNT dev.block_size);
+		PREF printf("\ttags sent:\n");
+		PREF printf("\t\t%llu simple\n",        CNT dev.tag_types[DEVSTAT_TAG_SIMPLE]);
+		PREF printf("\t\t%llu ordered\n",       CNT dev.tag_types[DEVSTAT_TAG_ORDERED]);
+		PREF printf("\t\t%llu head of queue\n", CNT dev.tag_types[DEVSTAT_TAG_HEAD]);
+		PREF printf("\tsupported statistics measurements flags: %llu\n", CNT dev.flags);
+		PREF printf("\tdevice type: %llu\n", CNT dev.device_type);
+		PREF printf("\tdevstat list insert priority: %llu\n", CNT dev.priority);
+#undef CNT
+#undef PREF
 		if (check_dev != NULL) {
 			found = 1;
 			break;

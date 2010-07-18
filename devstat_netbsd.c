@@ -124,22 +124,25 @@ devstat_getdevs(void)
 
 static void
 usage (char* progname) {
-	fprintf(stderr, "usage: %s [-M core] [-N system] [devname]\n", progname);
+	fprintf(stderr, "usage: %s [-M core] [-N system] [-m] [devname]\n", progname);
 }
 
 int
 main (int argc, char* argv[]) {
-	int		c, i, found;
+	int		c, i, found, mfriendly = 0;
 	char		*memf = NULL, *nlistf = NULL, *check_dev = NULL;
 	char		errbuf[_POSIX2_LINE_MAX];
 
-	while ((c = getopt(argc, argv, "M:N:")) != -1) {
+	while ((c = getopt(argc, argv, "M:N:m")) != -1) {
 		switch(c) {
 		case 'N':
 			nlistf = optarg;
 			break;
 		case 'M':
 			memf = optarg;
+			break;
+		case 'm':
+			mfriendly = 1;
 			break;
 		default:
 			usage(argv[0]);
@@ -167,30 +170,32 @@ main (int argc, char* argv[]) {
 
 	for (found = 0, i = 0; i < ndisk; i++) {
 
-#define CNT (unsigned long long)
+#define CNT	(unsigned long long)
 #define GET_STATS(var) \
 	((kd == NULL) ? dk_sysctl[i].var : dk_kvm[i].io_##var)
 #define GET_STATS_TIME(var, sec) \
 	((kd == NULL) ? CNT dk_sysctl[i].var##_##sec : CNT dk_kvm[i].io_##var.tv_##sec)
+#define PREF	do {if (mfriendly) printf("%s:", GET_STATS(name));} while (0); 
 
 		if ((check_dev != NULL) && (strcmp(check_dev, GET_STATS(name)) != 0))
 			continue;
 
-		printf("%s:\n", GET_STATS(name));
-		printf("\tdevice type: %llu\n",  CNT GET_STATS(type));
-		printf("\tbusy counter: %llu\n", CNT GET_STATS(busy));
-		printf("\t%llu bytes read\n",    CNT GET_STATS(rbytes));
-		printf("\t%llu bytes written\n", CNT GET_STATS(wbytes));
-		printf("\t%llu reads\n",  CNT GET_STATS(rxfer));
-		printf("\t%llu writes\n", CNT GET_STATS(wxfer));
-		printf("\t%llu seeks\n",  CNT GET_STATS(wxfer));
-		printf("\t%llu.%06llu sec spent busy\n",
+		if (!mfriendly)
+			printf("%s:\n", GET_STATS(name));
+		PREF printf("\tdevice type: %llu\n",  CNT GET_STATS(type));
+		PREF printf("\tbusy counter: %llu\n", CNT GET_STATS(busy));
+		PREF printf("\t%llu bytes read\n",    CNT GET_STATS(rbytes));
+		PREF printf("\t%llu bytes written\n", CNT GET_STATS(wbytes));
+		PREF printf("\t%llu reads\n",  CNT GET_STATS(rxfer));
+		PREF printf("\t%llu writes\n", CNT GET_STATS(wxfer));
+		PREF printf("\t%llu seeks\n",  CNT GET_STATS(wxfer));
+		PREF printf("\t%llu.%06llu sec spent busy\n",
 			GET_STATS_TIME(time, sec),
 			GET_STATS_TIME(time, usec));
-		printf("\tattach timestamp: %llu.%06llu sec\n",
+		PREF printf("\tattach timestamp: %llu.%06llu sec\n",
 			GET_STATS_TIME(attachtime, sec),
 			GET_STATS_TIME(attachtime, usec));
-		printf("\tunbusy timestamp: %llu.%06llu sec\n",
+		PREF printf("\tunbusy timestamp: %llu.%06llu sec\n",
 			GET_STATS_TIME(timestamp, sec),
 			GET_STATS_TIME(timestamp, usec));
 
@@ -202,6 +207,7 @@ main (int argc, char* argv[]) {
 #undef CNT
 #undef GET_STATS
 #undef GET_STATS_TIME
+#undef PREF
 
 	}
 
