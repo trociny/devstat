@@ -1,3 +1,9 @@
+devstat (0.3.3)
+
+  * output times in more convenient (decimal) format.
+
+-- Mikolaj Golub <to.my.trociny@gmail.com> 2012/09/28
+
 devstat (0.3.2)
 
   * option added to output in format more convenient for parsing
