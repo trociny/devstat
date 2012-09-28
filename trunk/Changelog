@@ -1,6 +1,8 @@
 devstat (0.3.3)
 
-  * output times in more convenient (decimal) format.
+  * output times in more convenient (decimal) format
+
+  * cleanup
 
 -- Mikolaj Golub <to.my.trociny@gmail.com> 2012/09/28
 
