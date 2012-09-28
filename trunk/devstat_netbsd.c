@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009 Mikolaj Golub
+ * Copyright (c) 2009, 2012 Mikolaj Golub
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -10,7 +10,7 @@
  * 2. Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY AUTHOR AND CONTRIBUTORS ``AS IS'' AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -83,7 +83,7 @@ devstat_getdevs(void)
 			return -1;
 		}
 
-		for (p = dkhead.tqh_first, i = 0; i < ndisk; p = dk[i].io_link.tqe_next, i++) 
+		for (p = dkhead.tqh_first, i = 0; i < ndisk; p = dk[i].io_link.tqe_next, i++)
 			if (kvm_read(kd, (u_long) p, &dk[i], sizeof(dk[i])) < 0) {
 				free(dk);
 				return -1;
@@ -102,7 +102,7 @@ devstat_getdevs(void)
 			perror("Can't get size of HW_DISKSTATS/HW_IOSTATS mib");
 			return -1;
 		}
-	
+
 		ndisk = size / dmib[2];
 		if (ndisk == 0)
 			return -1;
@@ -152,7 +152,7 @@ main (int argc, char* argv[]) {
 
 	argc -= optind;
 	argv += optind;
-	
+
 	if (argc > 0)
 		check_dev = argv[0];
 
@@ -169,13 +169,14 @@ main (int argc, char* argv[]) {
 		errx(1, "devstat_getdevs failed");
 
 	for (found = 0, i = 0; i < ndisk; i++) {
-
 #define CNT	(unsigned long long)
 #define GET_STATS(var) \
 	((kd == NULL) ? dk_sysctl[i].var : dk_kvm[i].io_##var)
-#define GET_STATS_TIME(var, sec) \
-	((kd == NULL) ? CNT dk_sysctl[i].var##_##sec : CNT dk_kvm[i].io_##var.tv_##sec)
-#define PREF	do {if (mfriendly) printf("%s:", GET_STATS(name));} while (0); 
+#define GET_STATS_TIME(var) \
+	((kd == NULL) ? \
+	 (long double)dk_sysctl[i].var##_sec + dk_sysctl[i].var##_usec * 1e-6 : \
+	 (long double)dk_kvm[i].io_##var.tv_sec + dk_kvm[i].io_##var.tv_usec * 1e-6)
+#define PREF	do {if (mfriendly) printf("%s:", GET_STATS(name));} while (0);
 
 		if ((check_dev != NULL) && (strcmp(check_dev, GET_STATS(name)) != 0))
 			continue;
@@ -189,21 +190,16 @@ main (int argc, char* argv[]) {
 		PREF printf("\t%llu reads\n",  CNT GET_STATS(rxfer));
 		PREF printf("\t%llu writes\n", CNT GET_STATS(wxfer));
 		PREF printf("\t%llu seeks\n",  CNT GET_STATS(wxfer));
-		PREF printf("\t%llu.%06llu sec spent busy\n",
-			GET_STATS_TIME(time, sec),
-			GET_STATS_TIME(time, usec));
-		PREF printf("\tattach timestamp: %llu.%06llu sec\n",
-			GET_STATS_TIME(attachtime, sec),
-			GET_STATS_TIME(attachtime, usec));
-		PREF printf("\tunbusy timestamp: %llu.%06llu sec\n",
-			GET_STATS_TIME(timestamp, sec),
-			GET_STATS_TIME(timestamp, usec));
+		PREF printf("\t%.3Lf sec spent busy\n", GET_STATS_TIME(time));
+		PREF printf("\tattach timestamp: %.3Lf sec\n",
+		    GET_STATS_TIME(attachtime));
+		PREF printf("\tunbusy timestamp: %.3Lf sec\n",
+		    GET_STATS_TIME(timestamp));
 
 		if (check_dev != NULL) {
 			found = 1;
 			break;
 		}
-
 #undef CNT
 #undef GET_STATS
 #undef GET_STATS_TIME
@@ -217,7 +213,7 @@ main (int argc, char* argv[]) {
 	} else {
 		free(dk_sysctl);
 	}
-	
+
 	if ((check_dev != NULL) && (found == 0))
 		errx(1, "device %s is not registered in iostat", check_dev);
 

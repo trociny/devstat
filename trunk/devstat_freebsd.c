@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008 Mikolaj Golub
+ * Copyright (c) 2008, 2012 Mikolaj Golub
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -10,7 +10,7 @@
  * 2. Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY AUTHOR AND CONTRIBUTORS ``AS IS'' AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -47,6 +47,10 @@
 
 #define MAXNAMELEN	256
 
+/* This is 1/2^64 */
+#define BINTIME_SCALE	5.42101086242752217003726400434970855712890625e-20
+#define BT2LD(time)	((long double)(time).sec + (time).frac * BINTIME_SCALE)
+
 static void
 usage (char* progname) {
 	fprintf(stderr, "usage: %s [-M core] [-N system] [-m] [devname]\n", progname);
@@ -80,7 +84,7 @@ main (int argc, char* argv[]) {
 
 	argc -= optind;
 	argv += optind;
-	
+
 	if (argc > 0)
 		check_dev = argv[0];
 
@@ -91,7 +95,7 @@ main (int argc, char* argv[]) {
 			errx(1, "kvm_openfiles: %s", errbuf);
 
 	}
-	
+
 	if (devstat_checkversion(kd) == -1)
 		errx(1, "userland and kernel devstat version mismatch");
 
@@ -111,39 +115,47 @@ main (int argc, char* argv[]) {
 			continue;
 
 #define CNT	(unsigned long long)
-#define PREF	do {if (mfriendly) printf("%s:", dev_name);} while (0); 
+#define PREF	do {if (mfriendly) printf("%s:", dev_name);} while (0);
 
 		if (!mfriendly)
 			printf("%s:\n", dev_name);
-		PREF printf("\t%llu bytes read\n",    CNT dev.bytes[DEVSTAT_READ]);
-		PREF printf("\t%llu bytes written\n", CNT dev.bytes[DEVSTAT_WRITE]);
-		PREF printf("\t%llu bytes freed\n",   CNT dev.bytes[DEVSTAT_FREE]);
-		PREF printf("\t%llu reads\n",  CNT dev.operations[DEVSTAT_READ]);
-		PREF printf("\t%llu writes\n", CNT dev.operations[DEVSTAT_WRITE]);
-		PREF printf("\t%llu frees\n",  CNT dev.operations[DEVSTAT_FREE]);
-		PREF printf("\t%llu other\n",  CNT dev.operations[DEVSTAT_NO_DATA]);
+		PREF printf("\t%llu bytes read\n",
+		    CNT dev.bytes[DEVSTAT_READ]);
+		PREF printf("\t%llu bytes written\n",
+		    CNT dev.bytes[DEVSTAT_WRITE]);
+		PREF printf("\t%llu bytes freed\n",
+		    CNT dev.bytes[DEVSTAT_FREE]);
+		PREF printf("\t%llu reads\n",
+		    CNT dev.operations[DEVSTAT_READ]);
+		PREF printf("\t%llu writes\n",
+		    CNT dev.operations[DEVSTAT_WRITE]);
+		PREF printf("\t%llu frees\n",
+		    CNT dev.operations[DEVSTAT_FREE]);
+		PREF printf("\t%llu other\n",
+		    CNT dev.operations[DEVSTAT_NO_DATA]);
 		PREF printf("\tduration:\n");
-		PREF printf("\t\t%llu %llu/2^64 sec reads\n",
-		            CNT dev.duration[DEVSTAT_READ].sec,
-                            CNT dev.duration[DEVSTAT_READ].frac);
-		PREF printf("\t\t%llu %llu/2^64 sec writes\n",
-		            CNT dev.duration[DEVSTAT_WRITE].sec, 
-		            CNT dev.duration[DEVSTAT_WRITE].frac);
-		PREF printf("\t\t%llu %llu/2^64 sec frees\n",
-		            CNT dev.duration[DEVSTAT_FREE].sec, 
-		            CNT dev.duration[DEVSTAT_FREE].frac);
-		PREF printf("\t%llu %llu/2^64 sec busy time\n",
-		            CNT dev.busy_time.sec, CNT dev.busy_time.frac);
-		PREF printf("\t%llu %llu/2^64 sec creation time\n",
-		            CNT dev.creation_time.sec, CNT dev.creation_time.frac);
+		PREF printf("\t\t%.3Lf sec reads\n",
+		    BT2LD(dev.duration[DEVSTAT_READ]));
+		PREF printf("\t\t%.3Lf sec writes\n",
+		    BT2LD(dev.duration[DEVSTAT_WRITE]));
+		PREF printf("\t\t%.3Lf sec frees\n",
+		    BT2LD(dev.duration[DEVSTAT_FREE]));
+		PREF printf("\t%.3Lf sec busy time\n", BT2LD(dev.busy_time));
+		PREF printf("\t%.3Lf sec creation time\n",
+		    BT2LD(dev.creation_time));
 		PREF printf("\t%llu block size\n", CNT dev.block_size);
 		PREF printf("\ttags sent:\n");
-		PREF printf("\t\t%llu simple\n",        CNT dev.tag_types[DEVSTAT_TAG_SIMPLE]);
-		PREF printf("\t\t%llu ordered\n",       CNT dev.tag_types[DEVSTAT_TAG_ORDERED]);
-		PREF printf("\t\t%llu head of queue\n", CNT dev.tag_types[DEVSTAT_TAG_HEAD]);
-		PREF printf("\tsupported statistics measurements flags: %llu\n", CNT dev.flags);
+		PREF printf("\t\t%llu simple\n",
+		    CNT dev.tag_types[DEVSTAT_TAG_SIMPLE]);
+		PREF printf("\t\t%llu ordered\n",
+		    CNT dev.tag_types[DEVSTAT_TAG_ORDERED]);
+		PREF printf("\t\t%llu head of queue\n",
+		    CNT dev.tag_types[DEVSTAT_TAG_HEAD]);
+		PREF printf("\tsupported statistics measurements flags: %llu\n",
+		    CNT dev.flags);
 		PREF printf("\tdevice type: %llu\n", CNT dev.device_type);
-		PREF printf("\tdevstat list insert priority: %llu\n", CNT dev.priority);
+		PREF printf("\tdevstat list insert priority: %llu\n",
+		    CNT dev.priority);
 #undef CNT
 #undef PREF
 		if (check_dev != NULL) {
@@ -156,7 +168,7 @@ main (int argc, char* argv[]) {
 
 	if(kd != NULL)
 		kvm_close(kd);
-	
+
 	if ((check_dev != NULL) && (found == 0))
 		errx(1, "device %s is not registered in devstat", check_dev);
 
