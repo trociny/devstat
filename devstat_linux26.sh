@@ -44,6 +44,7 @@ DISKSTATS=/proc/diskstats
 PROGNAME=`basename $0`
 FILTER=cat
 DEVICE=
+MASHINE=1
 
 #
 # Functions
@@ -58,6 +59,7 @@ usage()
     echo
     echo "  -h           print this help and exit"
     echo "  -f <file>    path to diskstats file (default is $DISKSTATS)"
+    echo "  -m           machine-friendly (more convenient for parsing) output"
     echo "  -p <filter>  filter diskstats file using this programm (e.g. to unzip)"
     echo
 }
@@ -66,7 +68,7 @@ usage()
 # Main
 #
 
-while getopts "hf:p:" opt; do
+while getopts "hf:mp:" opt; do
 
     case "$opt" in
 
@@ -76,6 +78,9 @@ while getopts "hf:p:" opt; do
 	    ;;
 	f)
 	    DISKSTATS=$OPTARG
+	    ;;
+	m)
+	    MACHINE=1
 	    ;;
 	p)
 	    FILTER=$OPTARG
@@ -99,18 +104,28 @@ if ! [ -f "$DISKSTATS" -a -r "$DISKSTATS" ]; then
 fi
 
 eval "$FILTER" "$DISKSTATS" |
-awk '("" == "'"$DEVICE"'") || ($3 == "'"$DEVICE"'") {
-         print $3 " (" $1 "/" $2 "):";
-         print "\t" $4  " reads completed";
-         print "\t" $5  " reads merged";
-         print "\t" $6  " sectors read";
-         print "\t" $7  " milliseconds spent reading";
-         print "\t" $8  " writes completed";
-         print "\t" $9  " writes merged";
-         print "\t" $10 " sectors written";
-         print "\t" $11 " milliseconds spent writing";
-         print "\t" $12 " I/Os currently in progress";
-         print "\t" $13 " milliseconds spent doing I/Os";
-         print "\t" $14 " milliseconds spent doing I/Os (weighted)";
-         print ""
+awk -v m=$MACHINE -v d="$DEVICE" \
+    'd == "" || $3 == d {
+         if (m) {
+             header = "";
+             prefix = $3 " (" $1 "/" $2 "):";
+             footer = "";
+         } else {
+             header = $3 " (" $1 "/" $2 "):\n";
+             prefix = "";
+             footer = "\n";
+         }
+         printf "%s", header;
+         printf "%s\t%d reads completed\n", prefix, $4;
+         printf "%s\t%d reads merged\n", prefix, $5;
+         printf "%s\t%d sectors read\n", prefix, $6;
+         printf "%s\t%d milliseconds spent reading\n", prefix, $7;
+         printf "%s\t%d writes completed\n", prefix, $8;
+         printf "%s\t%d writes merged\n", prefix, $9;
+         printf "%s\t%d sectors written\n", prefix, $10;
+         printf "%s\t%d milliseconds spent writing\n", prefix, $11;
+         printf "%s\t%d I/Os currently in progress\n", prefix, $12;
+         printf "%s\t%d milliseconds spent doing I/Os\n", prefix, $13;
+         printf "%s\t%d milliseconds spent doing I/Os (weighted)\n", prefix, $14;
+         printf "%s", footer;
     }'
