@@ -1,0 +1,1 @@
+devstat utility displays device statistics provided by FreeBSD devstat(9) kernel subsystem. Recently NetBSD support has been added.
